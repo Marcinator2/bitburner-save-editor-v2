@@ -32,7 +32,7 @@ export default observer(function CompaniesSection() {
         {filtered.map(([name, company]) => (
           <div
             key={name}
-            className="rounded border border-gray-700 shadow shadow-green-700 p-3 flex flex-col gap-2"
+            className="bg-gray-900 rounded border border-gray-700 shadow shadow-green-700 p-3 flex flex-col gap-2"
           >
             <span className="text-lg font-bold text-gray-100 truncate" title={name}>
               {name}

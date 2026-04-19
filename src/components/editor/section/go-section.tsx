@@ -42,7 +42,7 @@ export default observer(function GoSection() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded border border-gray-700 shadow shadow-green-700 p-4 max-w-sm">
+      <div className="bg-gray-900 rounded border border-gray-700 shadow shadow-green-700 p-4 max-w-sm">
         <span className="text-lg font-bold text-gray-100 block mb-2">IPvGO</span>
         <label className="flex flex-col gap-1">
           <span className="text-gray-400 text-sm">Stored Cycles (offline bonus)</span>
@@ -60,7 +60,7 @@ export default observer(function GoSection() {
         {Object.entries(stats).map(([opponent, s]) => (
           <div
             key={opponent}
-            className="rounded border border-gray-700 shadow shadow-green-700 p-3 flex flex-col gap-2"
+            className="bg-gray-900 rounded border border-gray-700 shadow shadow-green-700 p-3 flex flex-col gap-2"
           >
             <span className="text-base font-bold text-gray-100">{opponent}</span>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">

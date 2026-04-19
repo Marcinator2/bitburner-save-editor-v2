@@ -46,7 +46,7 @@ export default observer(function StockMarketSection() {
           return (
             <div
               key={symbol}
-              className="rounded border border-gray-700 shadow shadow-green-700 p-3 flex flex-col gap-2"
+              className="bg-gray-900 rounded border border-gray-700 shadow shadow-green-700 p-3 flex flex-col gap-2"
             >
               <div className="flex justify-between items-start">
                 <span className="text-lg font-bold text-gray-100">{name}</span>

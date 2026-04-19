@@ -79,7 +79,7 @@ const LastExportBonusView = observer(function LastExportBonusView() {
 
   return (
     <div className="flex flex-col gap-3 max-w-sm">
-      <div className="rounded border border-gray-700 shadow shadow-green-700 p-4 flex flex-col gap-2">
+      <div className="bg-gray-900 rounded border border-gray-700 shadow shadow-green-700 p-4 flex flex-col gap-2">
         <span className="text-lg font-bold text-gray-100">Last Export Bonus</span>
         <span className="text-gray-400 text-sm">{formatted}</span>
         <label className="flex flex-col gap-1">

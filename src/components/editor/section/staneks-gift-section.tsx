@@ -23,7 +23,7 @@ export default observer(function StaneksGiftSection() {
 
   return (
     <div className="flex flex-col gap-6 max-w-xl">
-      <div className="rounded border border-gray-700 shadow shadow-green-700 p-4 flex flex-col gap-3">
+      <div className="bg-gray-900 rounded border border-gray-700 shadow shadow-green-700 p-4 flex flex-col gap-3">
         <span className="text-lg font-bold text-gray-100">Charge Storage</span>
         <label className="flex flex-col gap-1">
           <span className="text-gray-400 text-sm">Stored Cycles (1 cycle ≈ 200 ms offline time)</span>
@@ -46,7 +46,7 @@ export default observer(function StaneksGiftSection() {
         </label>
       </div>
 
-      <div className="rounded border border-gray-700 p-4">
+      <div className="bg-gray-900 rounded border border-gray-700 p-4">
         <span className="text-sm font-bold text-gray-300">
           Fragments placed: {gift.fragments?.length ?? 0}
         </span>

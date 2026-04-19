@@ -89,7 +89,7 @@ export default observer(function EditorContainer() {
           {">"}
         </button>
       </div>
-      <div className="w-full h-full flex-1 mt-4 p-4 rounded shadow shadow-green-900">
+      <div className="w-full h-full flex-1 mt-4 p-4 rounded shadow shadow-green-900 bg-gray-900">
         {fileContext.error && (
           <span className="text-red-400">Error: {fileContext.error}</span>
         )}

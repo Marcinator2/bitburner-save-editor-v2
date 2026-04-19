@@ -35,9 +35,9 @@ export class FileStore {
 
   get factions() {
     return {
-      data: Object.entries(this.save.data.FactionsSave).sort(
-        (a, b) => b[1].data.playerReputation - a[1].data.playerReputation
-      ),
+      data: Object.entries(this.save.data.FactionsSave)
+        .filter(([, f]) => typeof f === "object" && f !== null && "ctor" in f && "data" in f)
+        .sort((a, b) => b[1].data.playerReputation - a[1].data.playerReputation),
       updateFaction: this.updateFaction,
     };
   }
