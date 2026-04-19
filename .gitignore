@@ -7,6 +7,8 @@
 
 # testing
 /coverage
+/bitburner-src-stable
+/test_files
 
 # production
 /build

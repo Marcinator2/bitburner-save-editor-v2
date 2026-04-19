@@ -6,11 +6,11 @@ import { Bitburner } from "bitburner.types";
 import { FileContext } from "App";
 import EditorSection from "components/editor/section";
 
-import { ReactComponent as IconFilter } from "icons/filter.svg";
+import IconFilter from "icons/filter.svg?react";
 
 export default observer(function EditorContainer() {
   const fileContext = useContext(FileContext);
-  const navRef = useRef<HTMLElement>();
+  const navRef = useRef<HTMLElement | null>(null);
 
   const [isFiltering, setIsFiltering] = useState(false);
   const toggleFiltering = useCallback(() => {
@@ -71,7 +71,10 @@ export default observer(function EditorContainer() {
         </button>
       </div>
       <div className="w-full h-full flex-1 mt-4 p-4 rounded shadow shadow-green-900">
-        {!fileContext.ready && <span>Upload a file to begin...</span>}
+        {fileContext.error && (
+          <span className="text-red-400">Error: {fileContext.error}</span>
+        )}
+        {!fileContext.ready && !fileContext.error && <span>Upload a file to begin...</span>}
         {fileContext.ready && <EditorSection tab={activeTab} isFiltering={isFiltering} />}
       </div>
     </div>

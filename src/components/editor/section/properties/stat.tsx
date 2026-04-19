@@ -20,7 +20,16 @@ interface Props extends PropsWithChildren<{}> {
 
 export default observer(function StatSection({ property, onSubmit }: Props) {
   const { player } = useContext(FileContext);
-  const [value, setValue] = useState(`${player.data[property]}`);
+  const data = player.data as any;
+
+  // Bitburner v2 uses nested skills/exp/mults objects; v1 used flat keys
+  const isV2 = !!data.skills;
+  const currentLevel: number = isV2 ? (data.skills?.[property] ?? 0) : (data[property] ?? 0);
+  const expMult: number = isV2
+    ? (data.mults?.[`${property}_exp`] ?? 1)
+    : (data[`${property}_exp_mult`] ?? 1);
+
+  const [value, setValue] = useState(`${currentLevel}`);
 
   const [editing, setEditing] = useState(false);
 
@@ -31,16 +40,20 @@ export default observer(function StatSection({ property, onSubmit }: Props) {
   const onClose = useCallback<MouseEventHandler<HTMLDivElement> & FormEventHandler>(
     (event) => {
       const desiredLevel = Math.min(Number.MAX_SAFE_INTEGER, Number(value));
-      let mult = property === "intelligence" ? 1 : player.data[`${property}_exp_mult`];
+      const mult = property === "intelligence" ? 1 : expMult;
+      const expValue = calculateExp(desiredLevel, mult);
 
-      // @TODO: Handle augmentations
-
-      onSubmit(`${property}_exp`, calculateExp(desiredLevel, mult));
-      onSubmit(`${property}`, desiredLevel);
+      if (isV2) {
+        onSubmit("skills", { ...data.skills, [property]: desiredLevel });
+        onSubmit("exp", { ...data.exp, [property]: expValue });
+      } else {
+        onSubmit(`${property}_exp`, expValue);
+        onSubmit(`${property}`, desiredLevel);
+      }
       setEditing(false);
       event.preventDefault();
     },
-    [property, onSubmit, value, player.data]
+    [property, onSubmit, value, data, isV2, expMult]
   );
 
   return (
@@ -59,7 +72,7 @@ export default observer(function StatSection({ property, onSubmit }: Props) {
           onClick={!editing ? () => setEditing(true) : undefined}
         >
           <span className="text-xl font-bold text-gray-100 mb-1 capitalize">{property}</span>
-          {!editing && <span className="overflow-hidden overflow-ellipsis">{player.data[property]}</span>}
+          {!editing && <span className="overflow-hidden overflow-ellipsis">{currentLevel}</span>}
           {editing && (
             <>
               <div>

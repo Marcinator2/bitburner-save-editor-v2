@@ -1,6 +1,6 @@
 import { ChangeEventHandler, PropsWithChildren } from "react";
 
-import { ReactComponent as CheckIcon } from "icons/check.svg";
+import CheckIcon from "icons/check.svg?react";
 import clsx from "clsx";
 
 interface Props extends PropsWithChildren<{}> {

@@ -6,7 +6,7 @@ import Editor from "components/editor";
 import fileStore from "store/file.store";
 import type { FileStore } from "store/file.store";
 
-import { ReactComponent as DownloadIcon } from "icons/download.svg";
+import DownloadIcon from "icons/download.svg?react";
 
 export const FileContext = createContext<FileStore>(fileStore);
 

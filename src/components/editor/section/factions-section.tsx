@@ -21,8 +21,8 @@ import { Input } from "components/inputs/input";
 import { formatNumber } from "util/format";
 import { useDebounce } from "util/hooks";
 
-import { SortAscendingIcon, SortDescendingIcon } from "@heroicons/react/solid";
-import { ReactComponent as SearchIcon } from "icons/search.svg";
+import { BarsArrowUpIcon, BarsArrowDownIcon } from "@heroicons/react/24/solid";
+import SearchIcon from "icons/search.svg?react";
 
 export type FactionDataKey = keyof Bitburner.FactionsSaveObject["data"];
 
@@ -86,7 +86,7 @@ export default observer(function FactionSection({ isFiltering }: Props) {
 
       setFilters((f) => ({
         ...f,
-        [property]: !f[property] ? -1 : f[property] > 0 ? -1 : 1,
+        [property]: !f[property] ? -1 : (f[property] as number) > 0 ? -1 : 1,
         [otherProperty]: undefined,
       }));
     }
@@ -128,9 +128,9 @@ export default observer(function FactionSection({ isFiltering }: Props) {
               onClick={onEditFilters}
             >
               {filters.playerReputation > 0 ? (
-                <SortAscendingIcon className="h-6 w-6" />
+                <BarsArrowUpIcon className="h-6 w-6" />
               ) : (
-                <SortDescendingIcon className="h-6 w-6" />
+                <BarsArrowDownIcon className="h-6 w-6" />
               )}
               <span className="ml-2">Reputation</span>
             </button>
@@ -140,9 +140,9 @@ export default observer(function FactionSection({ isFiltering }: Props) {
               onClick={onEditFilters}
             >
               {filters.favor > 0 ? (
-                <SortAscendingIcon className="h-6 w-6" />
+                <BarsArrowUpIcon className="h-6 w-6" />
               ) : (
-                <SortDescendingIcon className="h-6 w-6" />
+                <BarsArrowDownIcon className="h-6 w-6" />
               )}
               <span className="ml-2">Favor</span>
             </button>

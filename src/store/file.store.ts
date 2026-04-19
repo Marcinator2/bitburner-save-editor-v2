@@ -5,6 +5,7 @@ import { makeAutoObservable } from "mobx";
 export class FileStore {
   _file: File;
   save: Bitburner.SaveData;
+  error: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -58,21 +59,84 @@ export class FileStore {
     }
   };
 
+  get servers() {
+    return {
+      data: Object.entries(this.save.data.AllServersSave as Record<string, any>).sort(
+        ([a], [b]) => a.localeCompare(b)
+      ),
+      updateServer: this.updateServer,
+    };
+  }
+
+  updateServer = (hostname: string, updates: Record<string, unknown>) => {
+    Object.assign((this.save.data.AllServersSave as Record<string, any>)[hostname].data, updates);
+  };
+
+  get companies() {
+    return {
+      data: Object.entries(this.save.data.CompaniesSave as unknown as Record<string, { favor: number; playerReputation: number }>).sort(
+        ([a], [b]) => a.localeCompare(b)
+      ),
+      updateCompany: this.updateCompany,
+    };
+  }
+
+  updateCompany = (name: string, updates: { favor?: number; playerReputation?: number }) => {
+    Object.assign((this.save.data.CompaniesSave as any)[name], updates);
+  };
+
+  get stocks() {
+    return {
+      data: Object.entries(this.save.data.StockMarketSave as Record<string, any>).sort(
+        ([a], [b]) => a.localeCompare(b)
+      ),
+      updateStock: this.updateStock,
+    };
+  }
+
+  updateStock = (symbol: string, updates: Record<string, unknown>) => {
+    Object.assign((this.save.data.StockMarketSave as Record<string, any>)[symbol].data, updates);
+  };
+
+  get settings() {
+    return {
+      data: this.save.data.SettingsSave as unknown as Record<string, unknown>,
+      updateSetting: this.updateSetting,
+    };
+  }
+
+  updateSetting = (key: string, value: unknown) => {
+    (this.save.data.SettingsSave as any)[key] = value;
+  };
+
   clearFile = () => {
     this._file = undefined;
     this.save = undefined;
+    this.error = null;
   };
 
   uploadFile = async (file: File) => {
     this.clearFile();
     this._file = file;
-    await this.processFile();
+    try {
+      await this.processFile();
+    } catch (e) {
+      this.error = e instanceof Error ? e.message : String(e);
+    }
   };
 
   processFile = async () => {
-    const buffer = Buffer.from(await this.file.text(), "base64");
+    const text = await this.file.text();
 
-    const rawData: Bitburner.RawSaveData = JSON.parse(buffer.toString());
+    // Detect format: new Bitburner (v2+) saves as plain JSON,
+    // old Bitburner saves as base64-encoded JSON.
+    let rawData: Bitburner.RawSaveData;
+    const trimmed = text.trim();
+    if (trimmed.startsWith("{")) {
+      rawData = JSON.parse(trimmed);
+    } else {
+      rawData = JSON.parse(Buffer.from(trimmed, "base64").toString());
+    }
 
     if (rawData.ctor !== "BitburnerSaveObject") {
       throw new Error("Invalid save file");
