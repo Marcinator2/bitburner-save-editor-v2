@@ -10,6 +10,7 @@ import SettingsSection from "./settings-section";
 import AliasesSection from "./aliases-section";
 import StaneksGiftSection from "./staneks-gift-section";
 import GoSection from "./go-section";
+import GangSection from "./gang-section";
 
 interface Props {
   tab: Bitburner.SaveDataKey;
@@ -45,7 +46,7 @@ export default class EditorSection extends Component<Props> {
       case Bitburner.SaveDataKey.VersionSave:
         return <VersionValue />;
       case Bitburner.SaveDataKey.AllGangsSave:
-        return <RawJsonView tab={tab} />;
+        return <GangSection />;
       default:
         return <RawJsonView tab={tab} />;
     }

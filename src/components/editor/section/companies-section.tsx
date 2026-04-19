@@ -12,7 +12,7 @@ export default observer(function CompaniesSection() {
     return companies.data.filter(([name]) => name.toLowerCase().includes(q));
   }, [companies.data, search]);
 
-  const onChange = useCallback(
+    const onChange = useCallback(
     (name: string, field: "favor" | "playerReputation", value: string) => {
       const num = Number(value);
       if (!isNaN(num) && num >= 0) companies.updateCompany(name, { [field]: num });
@@ -44,7 +44,7 @@ export default observer(function CompaniesSection() {
                   className="bg-transparent w-32 rounded border border-gray-600 px-1 py-0.5 outline-none focus:border-green-700"
                   type="number"
                   min={0}
-                  value={company.playerReputation}
+                  value={company.playerReputation ?? 0}
                   onChange={(e) => onChange(name, "playerReputation", e.currentTarget.value)}
                 />
               </label>
@@ -54,7 +54,7 @@ export default observer(function CompaniesSection() {
                   className="bg-transparent w-20 rounded border border-gray-600 px-1 py-0.5 outline-none focus:border-green-700"
                   type="number"
                   min={0}
-                  value={company.favor}
+                  value={company.favor ?? 0}
                   onChange={(e) => onChange(name, "favor", e.currentTarget.value)}
                 />
               </label>

@@ -24,7 +24,7 @@ import { useDebounce } from "util/hooks";
 import { BarsArrowUpIcon, BarsArrowDownIcon } from "@heroicons/react/24/solid";
 import SearchIcon from "icons/search.svg?react";
 
-export type FactionDataKey = keyof Bitburner.FactionsSaveObject["data"];
+export type FactionDataKey = keyof Bitburner.FactionView;
 
 interface Props extends PropsWithChildren<{}> {
   isFiltering?: boolean;
@@ -33,17 +33,16 @@ export default observer(function FactionSection({ isFiltering }: Props) {
   const { factions } = useContext(FileContext);
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 500);
-  const [filters, setFilters] = useState<Partial<Bitburner.FactionsSaveObject["data"]>>({
+  const [filters, setFilters] = useState<{ playerReputation?: number; favor?: number; alreadyInvited?: boolean; isMember?: boolean }>({
     playerReputation: -1,
   });
 
   const filteredFactions = useMemo(() => {
     const filteredFactions = factions.data.filter(([, faction]) => {
       return (
-        (!filters.alreadyInvited || faction.data.alreadyInvited) &&
-        (!filters.isMember || faction.data.isMember) &&
-        (!filters.isBanned || faction.data.isBanned) &&
-        (debouncedQuery.length === 0 || faction.data.name.indexOf(debouncedQuery) >= 0)
+        (!filters.alreadyInvited || faction.alreadyInvited) &&
+        (!filters.isMember || faction.isMember) &&
+        (debouncedQuery.length === 0 || faction.name.toLowerCase().indexOf(debouncedQuery.toLowerCase()) >= 0)
       );
     });
 
@@ -57,13 +56,13 @@ export default observer(function FactionSection({ isFiltering }: Props) {
     if (!sortProperty) return filteredFactions;
 
     return sortWith(
-      [filters[sortProperty] > 0 ? ascend(path([1, "data", sortProperty])) : descend(path([1, "data", sortProperty]))],
+      [filters[sortProperty] > 0 ? ascend(path([1, sortProperty])) : descend(path([1, sortProperty]))],
       filteredFactions
     );
   }, [factions.data, filters, debouncedQuery]);
 
   const onSubmit = useCallback(
-    (faction: string, updates: Partial<Bitburner.FactionsSaveObject["data"]>) => {
+    (faction: string, updates: Partial<Bitburner.FactionView>) => {
       factions.updateFaction(faction, updates);
     },
     [factions]
@@ -116,10 +115,6 @@ export default observer(function FactionSection({ isFiltering }: Props) {
               <Checkbox onChange={onEditFilters} data-key="isMember" checked={filters.isMember ?? false} />
               <span className="ml-2">Joined?</span>
             </label>
-            <label className="inline-flex items-center text-slate-100">
-              <Checkbox onChange={onEditFilters} data-key="isBanned" checked={filters.isBanned ?? false} />
-              <span className="ml-2">Banned?</span>
-            </label>
           </div>
           <div className="mb-4 flex gap-4">
             <button
@@ -160,13 +155,13 @@ export default observer(function FactionSection({ isFiltering }: Props) {
 
 interface FactionProps extends PropsWithChildren<{}> {
   id: string;
-  faction: Bitburner.FactionsSaveObject;
-  onSubmit(key: string, value: Partial<Bitburner.FactionsSaveObject["data"]>): void;
+  faction: Bitburner.FactionView;
+  onSubmit(key: string, value: Partial<Bitburner.FactionView>): void;
 }
 
 const Faction = function Faction({ id, faction, onSubmit }: FactionProps) {
   const [editing, setEditing] = useState(false);
-  const [state, setState] = useState(Object.assign({}, faction.data));
+  const [state, setState] = useState(Object.assign({}, faction));
 
   const onClickEnter = useCallback<MouseEventHandler<HTMLDivElement>>((event) => {
     setEditing(true);
@@ -186,9 +181,8 @@ const Faction = function Faction({ id, faction, onSubmit }: FactionProps) {
       const favor = Math.min(Number.MAX_SAFE_INTEGER, Number(state.favor));
 
       onSubmit(id, {
-        ...Object.fromEntries(
-          (["alreadyInvited", "isMember", "isBanned"] as const).map((k) => [k, state[k]])
-        ),
+        alreadyInvited: state.alreadyInvited,
+        isMember: state.isMember,
         playerReputation,
         favor,
       });
@@ -211,12 +205,12 @@ const Faction = function Faction({ id, faction, onSubmit }: FactionProps) {
       >
         <form className="grid grid-cols-3 gap-1" data-id="faction-section" onSubmit={onClose}>
           <header className="col-span-2 flex items-baseline justify-between">
-            <h3 className="tracking-wide text-green-100">{faction.data.name}</h3>
+            <h3 className="tracking-wide text-green-100">{faction.name}</h3>
           </header>
           <label className="ml-auto inline-flex items-center text-slate-100">
             <span className="mr-2 text-sm">Invited: </span>
             <Checkbox
-              checked={state.alreadyInvited}
+              checked={state.alreadyInvited ?? false}
               disabled={!editing}
               onChange={onChange}
               data-key="alreadyInvited"
@@ -237,7 +231,7 @@ const Faction = function Faction({ id, faction, onSubmit }: FactionProps) {
           </label>
           <label className="ml-auto inline-flex items-center text-slate-100">
             <span className="mr-2 text-sm">Joined: </span>
-            <Checkbox checked={state.isMember} disabled={!editing} onChange={onChange} data-key="isMember" />
+            <Checkbox checked={state.isMember ?? false} disabled={!editing} onChange={onChange} data-key="isMember" />
           </label>
           <label className="col-span-2 flex items-center">
             <span className="mr-1">Favor: </span>
@@ -245,10 +239,6 @@ const Faction = function Faction({ id, faction, onSubmit }: FactionProps) {
               <Input disabled={!editing} onChange={onChange} value={`${state.favor}`} type="number" data-key="favor" />
             )}
             {!editing && <p className="px-2 py-1 w-full">{formatNumber(state.favor)}</p>}
-          </label>
-          <label className="ml-auto inline-flex items-center text-slate-100">
-            <span className="mr-2 text-sm">Banned: </span>
-            <Checkbox checked={state.isBanned} disabled={!editing} onChange={onChange} data-key="isBanned" />
           </label>
           <button type="submit" className="hidden" />
         </form>

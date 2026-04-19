@@ -43,7 +43,7 @@ export namespace Bitburner {
     ctor: Ctor.BitburnerSaveObject;
     data: {
       [SaveDataKey.AliasesSave]: Record<string, string>;
-      [SaveDataKey.AllGangsSave]: unknown; // @TODO: Gangs
+      [SaveDataKey.AllGangsSave]: AllGangsSaveData;
       [SaveDataKey.AllServersSave]: Record<string, ServerSaveObject>;
       [SaveDataKey.CompaniesSave]: Record<string, CompanySaveObject>;
       [SaveDataKey.FactionsSave]: Record<string, FactionsSaveObject>;
@@ -104,28 +104,27 @@ export namespace Bitburner {
     };
   }
 
-  interface CompanySaveObject extends SaveObject<Ctor.Company> {
-    data: {
-      name: string;
-      info: string;
-      companyPositions: Record<string, boolean>;
-      expMultiplier: number;
-      isMegacorp?: boolean;
-      jobStatReqOffset: number;
-      salaryMultiplier: number;
-    };
+  /** Bitburner v2.8+ flat company save format */
+  export interface CompanySaveObject {
+    favor?: number;
+    playerReputation?: number;
   }
 
-  export interface FactionsSaveObject extends SaveObject<Ctor.Faction> {
-    data: {
-      alreadyInvited: boolean;
-      augmentations: string[];
-      favor: number;
-      isBanned: boolean;
-      isMember: boolean;
-      name: string;
-      playerReputation: number;
-    };
+  /** Bitburner v2.8+ flat faction save format */
+  export interface FactionsSaveObject {
+    playerReputation?: number;
+    favor?: number;
+    discovery?: "unknown" | "rumored" | "known";
+  }
+
+  /** Merged view used in the editor (combines FactionsSave + PlayerSave) */
+  export interface FactionView {
+    name: string;
+    playerReputation: number;
+    favor: number;
+    discovery: "unknown" | "rumored" | "known";
+    isMember: boolean;
+    alreadyInvited: boolean;
   }
 
   interface HacknetNodeSaveObject extends SaveObject<Ctor.HacknetNode> {
@@ -194,6 +193,67 @@ export namespace Bitburner {
     };
   }
 
+  export interface AllGangsSaveData {
+    [gangName: string]: {
+      power: number;
+      territory: number;
+    };
+  }
+
+  export interface GangMemberSaveObject {
+    ctor: "GangMember";
+    data: {
+      name: string;
+      task: string;
+      earnedRespect: number;
+      hack: number;
+      str: number;
+      def: number;
+      dex: number;
+      agi: number;
+      cha: number;
+      hack_exp: number;
+      str_exp: number;
+      def_exp: number;
+      dex_exp: number;
+      agi_exp: number;
+      cha_exp: number;
+      hack_mult: number;
+      str_mult: number;
+      def_mult: number;
+      dex_mult: number;
+      agi_mult: number;
+      cha_mult: number;
+      hack_asc_points: number;
+      str_asc_points: number;
+      def_asc_points: number;
+      dex_asc_points: number;
+      agi_asc_points: number;
+      cha_asc_points: number;
+      upgrades: string[];
+      augmentations: string[];
+    };
+  }
+
+  export interface GangSaveObject {
+    ctor: "Gang";
+    data: {
+      facName: string;
+      members: GangMemberSaveObject[];
+      wanted: number;
+      respect: number;
+      isHackingGang: boolean;
+      respectGainRate: number;
+      wantedGainRate: number;
+      moneyGainRate: number;
+      storedCycles: number;
+      storedTerritoryAndPowerCycles: number;
+      territoryClashChance: number;
+      territoryWarfareEngaged: boolean;
+      notifyMemberDeath: boolean;
+    };
+  }
+
   interface StaneksGiftSaveObject extends SaveObject<Ctor.StaneksGift> {
     data: {
       fragments: {
@@ -215,7 +275,7 @@ export namespace Bitburner {
       city: CityName;
       companyName: string;
       corporation: unknown | null; // @TODO ICorporation
-      gang: unknown | null; // @TODO IGang
+      gang: GangSaveObject | null;
       bladeburner: unknown | null; // @TODO IBladeburner
       currentServer: string;
       factions: string[];

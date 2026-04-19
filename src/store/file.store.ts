@@ -34,28 +34,66 @@ export class FileStore {
   };
 
   get factions() {
+    const joinedSet = new Set(this.save.data.PlayerSave.data.factions ?? []);
+    const invitedSet = new Set(this.save.data.PlayerSave.data.factionInvitations ?? []);
+
+    // Bitburner only writes factions with non-zero rep/favor/discovery into FactionsSave.
+    // We must also include every faction the player has joined or been invited to,
+    // even when they have no entry in FactionsSave (rep=0, favor=0).
+    const knownNames = new Set([
+      ...Object.keys(this.save.data.FactionsSave),
+      ...joinedSet,
+      ...invitedSet,
+    ]);
+
+    const raw = this.save.data.FactionsSave as Record<string, Bitburner.FactionsSaveObject>;
+
+    const data: [string, Bitburner.FactionView][] = Array.from(knownNames)
+      .map((name): [string, Bitburner.FactionView] => {
+        const f = raw[name] ?? {};
+        return [
+          name,
+          {
+            name,
+            playerReputation: f.playerReputation ?? 0,
+            favor: f.favor ?? 0,
+            discovery: f.discovery ?? "unknown",
+            isMember: joinedSet.has(name),
+            alreadyInvited: invitedSet.has(name) || joinedSet.has(name),
+          },
+        ];
+      })
+      .sort((a, b) => b[1].playerReputation - a[1].playerReputation);
+
     return {
-      data: Object.entries(this.save.data.FactionsSave)
-        .filter(([, f]) => typeof f === "object" && f !== null && "ctor" in f && "data" in f)
-        .sort((a, b) => b[1].data.playerReputation - a[1].data.playerReputation),
+      data,
       updateFaction: this.updateFaction,
     };
   }
 
-  updateFaction = (faction: string, updates: Partial<Bitburner.FactionsSaveObject["data"]>) => {
-    Object.assign(this.save.data.FactionsSave[faction].data, updates);
+  updateFaction = (faction: string, updates: Partial<Bitburner.FactionView>) => {
+    const raw = (this.save.data.FactionsSave as Record<string, Bitburner.FactionsSaveObject>);
+    if (!raw[faction]) raw[faction] = {};
 
-    if (updates.isMember) {
-      this.updatePlayer({ factions: Array.from(new Set(this.player.data.factions.concat(faction))) });
-    } else {
-      this.updatePlayer({ factions: this.player.data.factions.filter((f) => f !== faction) });
+    if (updates.playerReputation !== undefined) raw[faction].playerReputation = updates.playerReputation;
+    if (updates.favor !== undefined) raw[faction].favor = updates.favor;
+    if (updates.discovery !== undefined) raw[faction].discovery = updates.discovery;
+
+    if (updates.isMember !== undefined) {
+      if (updates.isMember) {
+        this.updatePlayer({ factions: Array.from(new Set([...this.player.data.factions, faction])) });
+      } else {
+        this.updatePlayer({ factions: this.player.data.factions.filter((f) => f !== faction) });
+      }
     }
-    if (updates.alreadyInvited && !updates.isMember) {
-      this.updatePlayer({
-        factionInvitations: Array.from(new Set(this.player.data.factionInvitations.concat(faction))),
-      });
-    } else {
-      this.updatePlayer({ factionInvitations: this.player.data.factionInvitations.filter((f) => f !== faction) });
+    if (updates.alreadyInvited !== undefined) {
+      if (updates.alreadyInvited && !(updates.isMember ?? false)) {
+        this.updatePlayer({
+          factionInvitations: Array.from(new Set([...this.player.data.factionInvitations, faction])),
+        });
+      } else {
+        this.updatePlayer({ factionInvitations: this.player.data.factionInvitations.filter((f) => f !== faction) });
+      }
     }
   };
 
@@ -74,15 +112,17 @@ export class FileStore {
 
   get companies() {
     return {
-      data: Object.entries(this.save.data.CompaniesSave as unknown as Record<string, { favor: number; playerReputation: number }>)
-        .filter(([, c]) => typeof c === "object" && c !== null && "playerReputation" in c)
+      data: Object.entries(this.save.data.CompaniesSave as Record<string, Bitburner.CompanySaveObject>)
+        .filter(([, c]) => typeof c === "object" && c !== null)
         .sort(([a], [b]) => a.localeCompare(b)),
       updateCompany: this.updateCompany,
     };
   }
 
-  updateCompany = (name: string, updates: { favor?: number; playerReputation?: number }) => {
-    Object.assign((this.save.data.CompaniesSave as any)[name], updates);
+  updateCompany = (name: string, updates: Bitburner.CompanySaveObject) => {
+    const raw = this.save.data.CompaniesSave as Record<string, Bitburner.CompanySaveObject>;
+    if (!raw[name]) raw[name] = {};
+    Object.assign(raw[name], updates);
   };
 
   get stocks() {
