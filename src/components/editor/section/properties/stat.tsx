@@ -25,9 +25,10 @@ export default observer(function StatSection({ property, onSubmit }: Props) {
   // Bitburner v2 uses nested skills/exp/mults objects; v1 used flat keys
   const isV2 = !!data.skills;
   const currentLevel: number = isV2 ? (data.skills?.[property] ?? 0) : (data[property] ?? 0);
-  const expMult: number = isV2
-    ? (data.mults?.[`${property}_exp`] ?? 1)
-    : (data[`${property}_exp_mult`] ?? 1);
+  // The skill formula uses the SKILL multiplier (mults.hacking), not the exp-gain multiplier (mults.hacking_exp)
+  const skillMult: number = isV2
+    ? (data.mults?.[property] ?? 1)
+    : (data[`${property}_mult`] ?? 1);
 
   const [value, setValue] = useState(`${currentLevel}`);
 
@@ -40,7 +41,7 @@ export default observer(function StatSection({ property, onSubmit }: Props) {
   const onClose = useCallback<MouseEventHandler<HTMLDivElement> & FormEventHandler>(
     (event) => {
       const desiredLevel = Math.min(Number.MAX_SAFE_INTEGER, Number(value));
-      const mult = property === "intelligence" ? 1 : expMult;
+      const mult = property === "intelligence" ? 1 : skillMult;
       const expValue = calculateExp(desiredLevel, mult);
 
       if (isV2) {
@@ -50,10 +51,11 @@ export default observer(function StatSection({ property, onSubmit }: Props) {
         onSubmit(`${property}_exp`, expValue);
         onSubmit(`${property}`, desiredLevel);
       }
+      setValue(`${desiredLevel}`);
       setEditing(false);
       event.preventDefault();
     },
-    [property, onSubmit, value, data, isV2, expMult]
+    [property, onSubmit, value, data, isV2, skillMult]
   );
 
   return (

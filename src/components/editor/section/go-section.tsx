@@ -18,9 +18,7 @@ export default observer(function GoSection() {
   const raw = (ctx.save?.data as any)?.GoSave;
   if (!raw) return <span className="text-gray-500">No IPvGO data.</span>;
 
-  const stats: Record<string, GoStats> = raw.storedCycles !== undefined
-    ? raw.stats ?? {}  // new format: raw IS the GoSave object
-    : raw.stats ?? {};
+  const stats: Record<string, GoStats> = raw.stats ?? {};
 
   const storedCycles: number = raw.storedCycles ?? 0;
 

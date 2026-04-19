@@ -61,9 +61,9 @@ export class FileStore {
 
   get servers() {
     return {
-      data: Object.entries(this.save.data.AllServersSave as Record<string, any>).sort(
-        ([a], [b]) => a.localeCompare(b)
-      ),
+      data: Object.entries(this.save.data.AllServersSave as Record<string, any>)
+        .filter(([, s]) => typeof s === "object" && s !== null && "ctor" in s && "data" in s)
+        .sort(([a], [b]) => a.localeCompare(b)),
       updateServer: this.updateServer,
     };
   }
@@ -74,9 +74,9 @@ export class FileStore {
 
   get companies() {
     return {
-      data: Object.entries(this.save.data.CompaniesSave as unknown as Record<string, { favor: number; playerReputation: number }>).sort(
-        ([a], [b]) => a.localeCompare(b)
-      ),
+      data: Object.entries(this.save.data.CompaniesSave as unknown as Record<string, { favor: number; playerReputation: number }>)
+        .filter(([, c]) => typeof c === "object" && c !== null && "playerReputation" in c)
+        .sort(([a], [b]) => a.localeCompare(b)),
       updateCompany: this.updateCompany,
     };
   }

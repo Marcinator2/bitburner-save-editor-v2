@@ -3,5 +3,5 @@ export function calculateSkill(exp: number, mult = 1): number {
 }
 
 export function calculateExp(skill: number, mult = 1): number {
-  return Math.ceil(Math.exp((skill / mult + 200) / 32) - 534.6);
+  return Math.ceil(Math.exp((skill / mult + 200) / 32) - 534.5);
 }
