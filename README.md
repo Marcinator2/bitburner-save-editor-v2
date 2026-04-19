@@ -1,4 +1,4 @@
-# Bitburner Save Editor
+# Bitburner Save Editor v2
 
 A save editor for [Bitburner](https://github.com/bitburner-official/bitburner-src), forked and modernized from the original archived project.
 
