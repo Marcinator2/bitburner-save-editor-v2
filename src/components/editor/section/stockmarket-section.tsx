@@ -9,7 +9,12 @@ export default observer(function StockMarketSection() {
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return stocks.data.filter(([sym]) => sym.toLowerCase().includes(q));
+    // Only include entries that are actual Stock objects (have ctor + data),
+    // not metadata keys like Orders, storedCycles, lastUpdate, ticksUntilCycle
+    return stocks.data.filter(([sym, stock]) =>
+      typeof stock === "object" && stock !== null && "ctor" in stock && "data" in stock
+      && sym.toLowerCase().includes(q)
+    );
   }, [stocks.data, search]);
 
   const onChange = useCallback(

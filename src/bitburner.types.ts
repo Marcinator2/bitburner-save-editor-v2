@@ -6,13 +6,13 @@ export namespace Bitburner {
     CompaniesSave = "CompaniesSave",
     AliasesSave = "AliasesSave",
     GlobalAliasesSave = "GlobalAliasesSave",
-    MessagesSave = "MessagesSave",
     StockMarketSave = "StockMarketSave",
     SettingsSave = "SettingsSave",
     VersionSave = "VersionSave",
     AllGangsSave = "AllGangsSave",
     LastExportBonus = "LastExportBonus",
     StaneksGiftSave = "StaneksGiftSave",
+    GoSave = "GoSave",
   }
 
   export const enum Ctor {
@@ -48,8 +48,8 @@ export namespace Bitburner {
       [SaveDataKey.CompaniesSave]: Record<string, CompanySaveObject>;
       [SaveDataKey.FactionsSave]: Record<string, FactionsSaveObject>;
       [SaveDataKey.GlobalAliasesSave]: Record<string, string>;
+      [SaveDataKey.GoSave]: unknown;
       [SaveDataKey.LastExportBonus]: number; // Date Number
-      [SaveDataKey.MessagesSave]: Record<string, MessageSaveObject>;
       [SaveDataKey.PlayerSave]: PlayerSaveObject;
       [SaveDataKey.SettingsSave]: SettingsSaveData;
       [SaveDataKey.StaneksGiftSave]: StaneksGiftSaveObject;

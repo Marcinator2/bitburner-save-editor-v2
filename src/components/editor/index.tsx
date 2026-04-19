@@ -43,25 +43,44 @@ export default observer(function EditorContainer() {
           {"<"}
         </button>
         <nav className="w-full scroll-hidden overflow-x-scroll flex gap-x-4 scroll-smooth" ref={navRef}>
-          {Object.values(Bitburner.SaveDataKey).map((key) => (
-            <div
-              className={clsx(
-                "flex items-center justify-center",
-                "border-b-2 border-transparent transition-colors duration-200 ease-in",
-                activeTab === key && "border-green-700"
-              )}
-              key={key}
-            >
-              <button property={key} className="px-4 py-2 -b-px font-semibold" value={key} onClick={onClickTab}>
-                {key}
-              </button>
-              {activeTab === key && (
-                <button className={clsx(isFiltering && "text-green-700")} onClick={toggleFiltering}>
-                  <IconFilter />
+          {Object.values(Bitburner.SaveDataKey).map((key) => {
+            const hasData = fileContext.ready
+              ? (() => {
+                  const val = (fileContext.save?.data as any)?.[key];
+                  if (val === null || val === undefined) return false;
+                  if (typeof val === "object" && Object.keys(val).length === 0) return false;
+                  return true;
+                })()
+              : true;
+
+            return (
+              <div
+                className={clsx(
+                  "flex items-center justify-center",
+                  "border-b-2 border-transparent transition-colors duration-200 ease-in",
+                  activeTab === key && "border-green-700",
+                  !hasData && "opacity-30"
+                )}
+                key={key}
+              >
+                <button
+                  property={key}
+                  className="px-4 py-2 -b-px font-semibold"
+                  value={key}
+                  onClick={onClickTab}
+                  disabled={!hasData}
+                  title={!hasData ? "No data in this save file" : undefined}
+                >
+                  {key}
                 </button>
-              )}
-            </div>
-          ))}
+                {activeTab === key && hasData && (
+                  <button className={clsx(isFiltering && "text-green-700")} onClick={toggleFiltering}>
+                    <IconFilter />
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </nav>
         <button
           className="absolute right-0 inset-y-0 bg-gray-800 rounded-tr py-1 px-2 opacity-25 group-hover:opacity-100 hover:text-green-900 transition duration-200 ease-in"

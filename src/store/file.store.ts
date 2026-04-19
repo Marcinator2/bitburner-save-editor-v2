@@ -109,10 +109,14 @@ export class FileStore {
     (this.save.data.SettingsSave as any)[key] = value;
   };
 
+  // Track which format the original file used so we can round-trip correctly
+  _isBase64Format = false;
+
   clearFile = () => {
     this._file = undefined;
     this.save = undefined;
     this.error = null;
+    this._isBase64Format = false;
   };
 
   uploadFile = async (file: File) => {
@@ -134,8 +138,10 @@ export class FileStore {
     const trimmed = text.trim();
     if (trimmed.startsWith("{")) {
       rawData = JSON.parse(trimmed);
+      this._isBase64Format = false;
     } else {
       rawData = JSON.parse(Buffer.from(trimmed, "base64").toString());
+      this._isBase64Format = true;
     }
 
     if (rawData.ctor !== "BitburnerSaveObject") {
@@ -144,11 +150,17 @@ export class FileStore {
 
     const data: any = {};
 
-    for (const key of Object.values(Bitburner.SaveDataKey)) {
-      if (!rawData.data[key]) {
+    // Parse all keys from the file (not just known ones) to avoid data loss
+    for (const key of Object.keys(rawData.data)) {
+      const val = rawData.data[key as keyof typeof rawData.data];
+      if (!val) {
         data[key] = null;
       } else {
-        data[key] = JSON.parse(rawData.data[key]);
+        try {
+          data[key] = JSON.parse(val as string);
+        } catch {
+          data[key] = val; // keep raw if not JSON
+        }
       }
     }
 
@@ -172,30 +184,43 @@ export class FileStore {
 
     const data: any = {};
 
-    Object.values(Bitburner.SaveDataKey).forEach((key) => {
-      // Each key's value needs to be stringified independently
-      if (this.save.data[key] === null) {
+    // Serialize ALL keys present in the save (preserves unknown/future keys)
+    const saveData = this.save.data as Record<string, unknown>;
+    Object.keys(saveData).forEach((key) => {
+      if (saveData[key] === null || saveData[key] === undefined) {
         data[key] = "";
       } else {
-        data[key] = JSON.stringify(this.save.data[key]);
+        data[key] = JSON.stringify(saveData[key]);
       }
     });
 
     rawData.data = data;
 
-    const encodedData = Buffer.from(JSON.stringify(rawData)).toString("base64");
+    // Round-trip in the same format as the original file.
+    // v2 (plain JSON): Bitburner expects plain JSON back.
+    // v1 (base64): Bitburner expects base64-encoded JSON.
+    let outputData: string;
+    if (this._isBase64Format) {
+      outputData = Buffer.from(JSON.stringify(rawData)).toString("base64");
+    } else {
+      outputData = JSON.stringify(rawData);
+    }
 
-    const blobUrl = window.URL.createObjectURL(new Blob([encodedData], { type: "base64" }));
+    const blobUrl = window.URL.createObjectURL(
+      new Blob([outputData], { type: "application/json" })
+    );
 
     // Trick to start a download
     const downloadLink = document.createElement("a");
     downloadLink.style.display = "none";
     downloadLink.href = blobUrl;
-    const match = this.file.name.match(/bitburnerSave_(?<ts>\d+)_(?<bn>BN.+?)(?:-H4CKeD)*?.json/);
+    // Regex tolerates any prefix before "itburnerSave_" (e.g. "b22itburnerSave_")
+    const match = this.file.name.match(/itburnerSave_(?<ts>\d+)_(?<bn>BN.+?)(?:-H4CKeD)*?\.json/);
+    const bn = match?.groups?.bn ?? "BN1x0";
 
     downloadLink.download = `bitburnerSave_${
       Math.floor(Date.now() / 1000) // Seconds, not milliseconds
-    }_${match.groups.bn ?? "BN1x0"}-H4CKeD.json`;
+    }_${bn}-H4CKeD.json`;
 
     document.body.appendChild(downloadLink);
     downloadLink.click();
@@ -204,7 +229,7 @@ export class FileStore {
 
     window.URL.revokeObjectURL(blobUrl);
 
-    return encodedData;
+    return outputData;
   };
 
   setSaveData = (save: typeof this.save) => {
