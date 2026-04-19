@@ -12,7 +12,7 @@ import {
 } from "react";
 import { observer } from "mobx-react-lite";
 import clsx from "clsx";
-import { ascend, descend, path, pick, sortWith } from "ramda";
+import { ascend, descend, path, sortWith } from "ramda";
 
 import { FileContext } from "App";
 import { Bitburner } from "bitburner.types";
@@ -186,7 +186,9 @@ const Faction = function Faction({ id, faction, onSubmit }: FactionProps) {
       const favor = Math.min(Number.MAX_SAFE_INTEGER, Number(state.favor));
 
       onSubmit(id, {
-        ...pick(["alreadyInvited", "isMember", "isBanned"], state),
+        ...Object.fromEntries(
+          (["alreadyInvited", "isMember", "isBanned"] as const).map((k) => [k, state[k]])
+        ),
         playerReputation,
         favor,
       });
