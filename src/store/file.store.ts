@@ -111,12 +111,14 @@ export class FileStore {
 
   // Track which format the original file used so we can round-trip correctly
   _isBase64Format = false;
+  _isGzFormat = false;
 
   clearFile = () => {
     this._file = undefined;
     this.save = undefined;
     this.error = null;
     this._isBase64Format = false;
+    this._isGzFormat = false;
   };
 
   uploadFile = async (file: File) => {
@@ -130,7 +132,21 @@ export class FileStore {
   };
 
   processFile = async () => {
-    const text = await this.file.text();
+    // Read as bytes so we can detect gzip magic bytes (1f 8b)
+    const buffer = await this.file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+
+    let text: string;
+    if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+      // Gzip-compressed backup — decompress via native DecompressionStream
+      this._isGzFormat = true;
+      const stream = new DecompressionStream("gzip");
+      const response = new Response(new Blob([bytes]).stream().pipeThrough(stream));
+      text = await response.text();
+    } else {
+      this._isGzFormat = false;
+      text = new TextDecoder().decode(bytes);
+    }
 
     // Detect format: new Bitburner (v2+) saves as plain JSON,
     // old Bitburner saves as base64-encoded JSON.
@@ -177,7 +193,7 @@ export class FileStore {
     console.info("File processed...");
   };
 
-  downloadFile = () => {
+  downloadFile = async () => {
     const rawData: Partial<Bitburner.RawSaveData> = {
       ctor: Bitburner.Ctor.BitburnerSaveObject,
     };
@@ -206,21 +222,30 @@ export class FileStore {
       outputData = JSON.stringify(rawData);
     }
 
-    const blobUrl = window.URL.createObjectURL(
-      new Blob([outputData], { type: "application/json" })
-    );
+    // Build the download blob — recompress as gzip if the original was a .gz backup
+    let blob: Blob;
+    if (this._isGzFormat) {
+      const stream = new CompressionStream("gzip");
+      const response = new Response(new Blob([outputData]).stream().pipeThrough(stream));
+      blob = await response.blob();
+    } else {
+      blob = new Blob([outputData], { type: "application/json" });
+    }
+
+    const blobUrl = window.URL.createObjectURL(blob);
 
     // Trick to start a download
     const downloadLink = document.createElement("a");
     downloadLink.style.display = "none";
     downloadLink.href = blobUrl;
-    // Regex tolerates any prefix before "itburnerSave_" (e.g. "b22itburnerSave_")
-    const match = this.file.name.match(/itburnerSave_(?<ts>\d+)_(?<bn>BN.+?)(?:-H4CKeD)*?\.json/);
+    // Regex tolerates any prefix before "itburnerSave_" and optional .gz suffix
+    const match = this.file.name.match(/itburnerSave_(?<ts>\d+)_(?<bn>BN.+?)(?:-H4CKeD)*?(?:\.json|\.json\.gz|\.gz)/);
     const bn = match?.groups?.bn ?? "BN1x0";
+    const ext = this._isGzFormat ? ".json.gz" : ".json";
 
     downloadLink.download = `bitburnerSave_${
       Math.floor(Date.now() / 1000) // Seconds, not milliseconds
-    }_${bn}-H4CKeD.json`;
+    }_${bn}-H4CKeD${ext}`;
 
     document.body.appendChild(downloadLink);
     downloadLink.click();
@@ -228,8 +253,6 @@ export class FileStore {
     downloadLink.remove();
 
     window.URL.revokeObjectURL(blobUrl);
-
-    return outputData;
   };
 
   setSaveData = (save: typeof this.save) => {

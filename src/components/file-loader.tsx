@@ -48,7 +48,7 @@ export default observer(function FileLoader() {
     >
       <UploadIcon className="h-8 w-8 mr-4" />
       {fileContext.file?.name ?? "Choose File"}
-      <input className="hidden" type="file" accept="application/json" onChange={onSelectFile} />
+      <input className="hidden" type="file" accept="application/json,.json,.gz,.json.gz" onChange={onSelectFile} />
     </label>
   );
 });
