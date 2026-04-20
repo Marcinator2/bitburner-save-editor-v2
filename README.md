@@ -4,6 +4,8 @@ Try it online: [marcinator2.github.io/bitburner-save-editor-v2](https://marcinat
 
 The updated save editor for [Bitburner](https://github.com/bitburner-official/bitburner-src), based on the original archived project by [Redmega](https://github.com/Redmega/bitburner-save-editor).
 
+Created for Bitburner version 2.8.1.
+
 ## Usage
 
 Open the editor, upload your exported Bitburner save file (`.json`, `.json.gz` or `.gz` backups are all supported), edit what you need, then click the download icon in the header to get the modified save — exported in the same format as the original.
