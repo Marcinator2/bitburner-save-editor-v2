@@ -1,6 +1,8 @@
 # Bitburner Save Editor v2
 
-A save editor for [Bitburner](https://github.com/bitburner-official/bitburner-src), forked and modernized from the original archived project (https://github.com/Redmega/bitburner-save-editor).
+Try it online: [marcinator2.github.io/bitburner-save-editor-v2](https://marcinator2.github.io/bitburner-save-editor-v2/)
+
+The updated save editor for [Bitburner](https://github.com/bitburner-official/bitburner-src), based on the original archived project by [Redmega](https://github.com/Redmega/bitburner-save-editor).
 
 ## Usage
 
