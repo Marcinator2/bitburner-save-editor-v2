@@ -10,6 +10,13 @@ const RAM_OPTIONS: number[] = [0, ...Array.from({ length: 21 }, (_, i) => 2 ** i
 export default observer(function ServersSection() {
   const { servers } = useContext(FileContext);
   const [search, setSearch] = useState("");
+  const [batchRam, setBatchRam] = useState<string>("__none__");
+  const [batchCores, setBatchCores] = useState<string>("__none__");
+
+  const purchasedHostnames = useMemo(
+    () => servers.data.filter(([, s]) => (s.data as any).purchasedByPlayer).map(([h]) => h),
+    [servers.data]
+  );
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -33,6 +40,19 @@ export default observer(function ServersSection() {
     [servers]
   );
 
+  const applyBatch = useCallback(() => {
+    for (const hostname of purchasedHostnames) {
+      if (batchRam !== "__none__") {
+        const gb = Number(batchRam);
+        if (!isNaN(gb) && gb >= 0) servers.updateServer(hostname, { maxRam: gb });
+      }
+      if (batchCores !== "__none__") {
+        const cores = Math.max(1, Math.min(8, Number(batchCores)));
+        if (!isNaN(cores)) servers.updateServer(hostname, { cpuCores: cores });
+      }
+    }
+  }, [purchasedHostnames, batchRam, batchCores, servers]);
+
   const onToggleBackdoor = useCallback(
     (hostname: string, current: boolean) => {
       servers.updateServer(hostname, { backdoorInstalled: !current });
@@ -49,6 +69,48 @@ export default observer(function ServersSection() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Batch editor for owned servers */}
+      {purchasedHostnames.length > 0 && (
+        <div className="bg-gray-900 border border-blue-800 rounded p-3 flex flex-col gap-3">
+          <span className="text-sm font-semibold text-blue-300">
+            Batch-Edit: eigene Server ({purchasedHostnames.length})
+          </span>
+          <div className="flex flex-wrap gap-4 items-end">
+            <label className="flex flex-col gap-0.5 text-sm">
+              <span className="text-gray-400 text-xs">RAM (GB)</span>
+              <select
+                className="bg-gray-800 rounded border border-gray-600 px-1 py-0.5 outline-none focus:border-blue-500"
+                value={batchRam}
+                onChange={(e) => setBatchRam(e.currentTarget.value)}
+              >
+                <option value="__none__">— nicht ändern —</option>
+                {RAM_OPTIONS.map((gb) => (
+                  <option key={gb} value={gb}>{gb} GB</option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-0.5 text-sm">
+              <span className="text-gray-400 text-xs">Cores</span>
+              <select
+                className="bg-gray-800 rounded border border-gray-600 px-1 py-0.5 outline-none focus:border-blue-500"
+                value={batchCores}
+                onChange={(e) => setBatchCores(e.currentTarget.value)}
+              >
+                <option value="__none__">— nicht ändern —</option>
+                {Array.from({ length: 8 }, (_, i) => i + 1).map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </label>
+            <button
+              className="px-3 py-1 rounded bg-blue-900 hover:bg-blue-700 text-blue-200 hover:text-white transition-colors text-sm"
+              onClick={applyBatch}
+            >
+              Auf alle eigenen Server anwenden
+            </button>
+          </div>
+        </div>
+      )}
       <input
         className="bg-gray-800 rounded px-3 py-1 w-64 outline-none focus:ring-1 ring-green-700"
         placeholder="Search servers…"
