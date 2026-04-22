@@ -20,9 +20,9 @@ You can drag your save file directly onto the upload area.
 
 | Tab | What you can edit |
 |---|---|
-| **Player** | Money, all stats (hacking, strength, defense, dexterity, agility, charisma, intelligence), Karma, Entropy |
+| **Player** | Money, all stats (hacking, strength, defense, dexterity, agility, charisma, intelligence), Karma, Entropy, Augmentations |
 | **Factions** | Reputation, favor, membership, invite status, banned status — with search and sort |
-| **Servers** | Admin rights, backdoor, RAM, CPU cores — with search |
+| **All Servers** | Admin rights, backdoor, RAM (power-of-2 dropdown), CPU cores — with search; batch-edit all owned servers at once |
 | **Companies** | Reputation, favor — with search |
 | **Stock Market** | Shares (long/short), average buy/short price |
 | **Settings** | All game settings (booleans as dropdowns, numbers/strings as inputs) |
@@ -32,7 +32,22 @@ You can drag your save file directly onto the upload area.
 | **IPvGO** | Stored cycles, per-opponent stats (wins, losses, streaks, nodes, node power, favor) |
 | **Last Export Bonus** | View and edit the timestamp, set to now |
 | **Version** | Display only |
-| **Gangs** | Raw JSON view |
+| **All Gangs** | Raw JSON view |
+
+### Augmentations
+
+The Player tab includes a full augmentation editor:
+- Enable/disable individual augmentations via checkboxes
+- **Enable all** / **Disable all** buttons
+- **NeuroFlux Governor** with stackable level input
+- Search and "Show all" toggle (default: only installed augs are shown)
+- Queued augmentations (purchased but not yet installed) are highlighted
+
+### All Servers — Batch Edit
+
+Owned (purchased) servers can be edited in bulk:
+- Set RAM and/or CPU cores for all owned servers at once
+- RAM values are restricted to valid Bitburner power-of-2 options (1–1048576 GB)
 
 ### File formats
 
@@ -43,6 +58,12 @@ You can drag your save file directly onto the upload area.
 ### Automatic exploit
 
 The `EditSaveFile` exploit is automatically applied when loading a save that doesn't have it yet.
+
+### UI
+
+- Bitburner-inspired terminal aesthetic with neon green color scheme
+- Animated Matrix rain background
+- Monospace font throughout
 
 ## Tech stack
 
@@ -55,6 +76,12 @@ The `EditSaveFile` exploit is automatically applied when loading a save that doe
 ```bash
 npm install
 npm run dev
+```
+
+Or use the included helper script:
+
+```bash
+./start.sh
 ```
 
 Build:
