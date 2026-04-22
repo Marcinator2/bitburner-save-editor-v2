@@ -6,6 +6,7 @@ import EditableSection from "./properties/editable";
 import StatSection from "./properties/stat";
 import { FileContext } from "App";
 import { formatMoney, formatNumber } from "util/format";
+import AugmentationsSection from "./augmentations-section";
 
 export type PlayerDataKey = keyof Bitburner.PlayerSaveObject["data"];
 
@@ -54,6 +55,9 @@ export default observer(function PlayerSection() {
         value={player.data.entropy}
         onSubmit={onSubmit}
       />
+      <div className="w-full border-t border-gray-700 pt-4 mt-2">
+        <AugmentationsSection />
+      </div>
     </div>
   );
 });

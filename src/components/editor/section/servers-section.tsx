@@ -73,7 +73,7 @@ export default observer(function ServersSection() {
       {purchasedHostnames.length > 0 && (
         <div className="bg-gray-900 border border-blue-800 rounded p-3 flex flex-col gap-3">
           <span className="text-sm font-semibold text-blue-300">
-            Batch-Edit: eigene Server ({purchasedHostnames.length})
+            Batch-Edit: owned servers ({purchasedHostnames.length})
           </span>
           <div className="flex flex-wrap gap-4 items-end">
             <label className="flex flex-col gap-0.5 text-sm">
@@ -83,7 +83,7 @@ export default observer(function ServersSection() {
                 value={batchRam}
                 onChange={(e) => setBatchRam(e.currentTarget.value)}
               >
-                <option value="__none__">— nicht ändern —</option>
+                <option value="__none__">— no change —</option>
                 {RAM_OPTIONS.map((gb) => (
                   <option key={gb} value={gb}>{gb} GB</option>
                 ))}
@@ -96,7 +96,7 @@ export default observer(function ServersSection() {
                 value={batchCores}
                 onChange={(e) => setBatchCores(e.currentTarget.value)}
               >
-                <option value="__none__">— nicht ändern —</option>
+                <option value="__none__">— no change —</option>
                 {Array.from({ length: 8 }, (_, i) => i + 1).map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -106,7 +106,7 @@ export default observer(function ServersSection() {
               className="px-3 py-1 rounded bg-blue-900 hover:bg-blue-700 text-blue-200 hover:text-white transition-colors text-sm"
               onClick={applyBatch}
             >
-              Auf alle eigenen Server anwenden
+              Apply to all owned servers
             </button>
           </div>
         </div>
