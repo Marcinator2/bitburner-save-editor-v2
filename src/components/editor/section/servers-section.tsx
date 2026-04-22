@@ -4,6 +4,9 @@ import clsx from "clsx";
 import { FileContext } from "App";
 import { formatNumber } from "util/format";
 
+const RAM_OPTIONS: number[] = [0, ...Array.from({ length: 21 }, (_, i) => 2 ** i)];
+// 0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, …, 1048576
+
 export default observer(function ServersSection() {
   const { servers } = useContext(FileContext);
   const [search, setSearch] = useState("");
@@ -15,6 +18,7 @@ export default observer(function ServersSection() {
 
   const onChangeRam = useCallback(
     (hostname: string, value: string) => {
+      if (value === "__custom__") return;
       const gb = Number(value);
       if (!isNaN(gb) && gb >= 0) servers.updateServer(hostname, { maxRam: gb });
     },
@@ -100,13 +104,18 @@ export default observer(function ServersSection() {
               <div className="flex gap-4 text-sm">
                 <label className="flex flex-col gap-0.5">
                   <span className="text-gray-400 text-xs">RAM (GB)</span>
-                  <input
-                    className="bg-transparent w-24 rounded border border-gray-600 px-1 py-0.5 outline-none focus:border-green-700"
-                    type="number"
-                    min={0}
-                    value={maxRam}
+                  <select
+                    className="bg-gray-900 rounded border border-gray-600 px-1 py-0.5 outline-none focus:border-green-700"
+                    value={RAM_OPTIONS.includes(maxRam) ? maxRam : "__custom__"}
                     onChange={(e) => onChangeRam(hostname, e.currentTarget.value)}
-                  />
+                  >
+                    {!RAM_OPTIONS.includes(maxRam) && (
+                      <option value="__custom__">{maxRam} GB (custom)</option>
+                    )}
+                    {RAM_OPTIONS.map((gb) => (
+                      <option key={gb} value={gb}>{gb} GB</option>
+                    ))}
+                  </select>
                 </label>
                 <label className="flex flex-col gap-0.5">
                   <span className="text-gray-400 text-xs">Cores</span>
