@@ -26,6 +26,14 @@ function App() {
                 <DownloadIcon className="h-8 w-8 text-green-400" />
               </button>
             )}
+            <a
+              href="https://github.com/Marcinator2/bitburner-save-editor-v2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-4 text-sm font-normal tracking-normal text-green-500 hover:text-green-300 border border-green-700 hover:border-green-400 px-4 py-2 rounded transition-colors hover:shadow-neon"
+            >
+              GitHub
+            </a>
           </h1>
           <FileLoader />
         </header>
