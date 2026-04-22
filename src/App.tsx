@@ -5,6 +5,7 @@ import FileLoader from "components/file-loader";
 import Editor from "components/editor";
 import fileStore from "store/file.store";
 import type { FileStore } from "store/file.store";
+import MatrixRain from "components/matrix-rain";
 
 import DownloadIcon from "icons/download.svg?react";
 
@@ -15,13 +16,14 @@ function App() {
 
   return (
     <FileContext.Provider value={fileStore}>
-      <div className="flex flex-col h-full w-full">
+      <MatrixRain />
+      <div className="flex flex-col h-full w-full" style={{ position: "relative", zIndex: 1 }}>
         <header>
-          <h1 className="flex items-center text-4xl mb-4">
+          <h1 className="flex items-center text-4xl mb-4 text-green-400 tracking-widest uppercase">
             Bitburner Save Editor v2
             {fileStore.ready && (
-              <button className="ml-4 p-2 rounded bg-gray-800 hover:bg-gray-700" onClick={fileStore.downloadFile}>
-                <DownloadIcon className="h-8 w-8" />
+              <button className="ml-4 p-2 rounded border border-green-700 bg-gray-900 hover:bg-gray-800 hover:shadow-neon transition-all" onClick={fileStore.downloadFile}>
+                <DownloadIcon className="h-8 w-8 text-green-400" />
               </button>
             )}
           </h1>

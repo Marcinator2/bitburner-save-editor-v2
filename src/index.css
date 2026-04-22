@@ -5,27 +5,63 @@
 html,
 body,
 #root {
-  @apply h-full w-full bg-gray-900;
+  @apply h-full w-full;
+  background-color: #050d05;
 }
 
 #root {
-  @apply p-8 bg-gray-900 text-white font-mono;
+  @apply p-8 font-mono;
+  background-color: #050d05;
+  color: #33ff33;
 }
 
+/* Subtle scanline overlay for terminal feel */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.08) 3px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  z-index: 9999;
+}
+
+/* Input / Select / Textarea base style */
+input, select, textarea {
+  color: #33ff33;
+  background-color: #0a160a;
+}
+
+input::placeholder {
+  color: #336b33;
+}
+
+/* Neon text-shadow for headings */
+h1, h2, h3 {
+  text-shadow: 0 0 8px rgba(51, 255, 51, 0.4);
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
-  @apply w-1 h-1 p-1;
+  @apply w-1 h-1;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-900;
+  background: #040c04;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-800;
+  background: #1e4a1e;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-700;
+  background: #336b33;
 }
 
 input::-webkit-inner-spin-button {

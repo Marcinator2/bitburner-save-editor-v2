@@ -8,6 +8,22 @@ import EditorSection from "components/editor/section";
 
 import IconFilter from "icons/filter.svg?react";
 
+const TAB_LABELS: Record<string, string> = {
+  [Bitburner.SaveDataKey.PlayerSave]:        "Player",
+  [Bitburner.SaveDataKey.FactionsSave]:      "Factions",
+  [Bitburner.SaveDataKey.AllServersSave]:    "All Servers",
+  [Bitburner.SaveDataKey.CompaniesSave]:     "Companies",
+  [Bitburner.SaveDataKey.AliasesSave]:       "Aliases",
+  [Bitburner.SaveDataKey.GlobalAliasesSave]: "Global Aliases",
+  [Bitburner.SaveDataKey.StockMarketSave]:   "Stock Market",
+  [Bitburner.SaveDataKey.SettingsSave]:      "Settings",
+  [Bitburner.SaveDataKey.VersionSave]:       "Version",
+  [Bitburner.SaveDataKey.AllGangsSave]:      "All Gangs",
+  [Bitburner.SaveDataKey.LastExportBonus]:   "Last Export Bonus",
+  [Bitburner.SaveDataKey.StaneksGiftSave]:   "Stanek's Gift",
+  [Bitburner.SaveDataKey.GoSave]:            "IPvGO",
+};
+
 export default observer(function EditorContainer() {
   const fileContext = useContext(FileContext);
 
@@ -24,7 +40,7 @@ export default observer(function EditorContainer() {
 
   return (
     <div className="h-full w-full mt-4 flex flex-col">
-      <nav className="w-full flex flex-wrap gap-1 border-b border-gray-700 pb-1">
+      <nav className="w-full flex flex-wrap gap-1 border-b border-green-900 pb-1 items-center">
           {Object.values(Bitburner.SaveDataKey).map((key) => {
             const hasData = fileContext.ready
               ? (() => {
@@ -40,7 +56,7 @@ export default observer(function EditorContainer() {
                 className={clsx(
                   "flex items-center",
                   "border-b-2 border-transparent transition-colors duration-200 ease-in",
-                  activeTab === key && "border-green-700",
+                  activeTab === key && "border-green-400 text-green-300",
                   !hasData && "opacity-30"
                 )}
                 key={key}
@@ -53,7 +69,7 @@ export default observer(function EditorContainer() {
                   disabled={!hasData}
                   title={!hasData ? "No data in this save file" : undefined}
                 >
-                  {key}
+                  {TAB_LABELS[key] ?? key}
                 </button>
                 {activeTab === key && hasData && (
                   <button className={clsx(isFiltering && "text-green-700")} onClick={toggleFiltering}>
@@ -64,7 +80,8 @@ export default observer(function EditorContainer() {
             );
           })}
         </nav>
-      <div className="w-full h-full flex-1 mt-4 p-4 rounded shadow shadow-green-900 bg-gray-900">
+
+      <div className="w-full h-full flex-1 mt-4 p-4 rounded border border-green-900 shadow-neon" style={{ backgroundColor: "rgba(0, 0, 0, 0.75)" }}>
         {fileContext.error && (
           <span className="text-red-400">Error: {fileContext.error}</span>
         )}
