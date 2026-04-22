@@ -11,9 +11,12 @@ import AliasesSection from "./aliases-section";
 import StaneksGiftSection from "./staneks-gift-section";
 import GoSection from "./go-section";
 import GangSection from "./gang-section";
+import CorporationSection from "./corporation-section";
+
+export const CORP_TAB_KEY = "__CorporationTab__";
 
 interface Props {
-  tab: Bitburner.SaveDataKey;
+  tab: Bitburner.SaveDataKey | typeof CORP_TAB_KEY;
   isFiltering?: boolean;
 }
 
@@ -47,8 +50,10 @@ export default class EditorSection extends Component<Props> {
         return <VersionValue />;
       case Bitburner.SaveDataKey.AllGangsSave:
         return <GangSection />;
+      case CORP_TAB_KEY:
+        return <CorporationSection />;
       default:
-        return <RawJsonView tab={tab} />;
+        return <RawJsonView tab={tab as Bitburner.SaveDataKey} />;
     }
   }
 

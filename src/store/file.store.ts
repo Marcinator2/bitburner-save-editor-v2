@@ -33,6 +33,44 @@ export class FileStore {
     Object.assign(this.save.data.PlayerSave.data, updates);
   };
 
+  get corporation() {
+    if (!this.save) return null;
+    const corp = (this.save.data.PlayerSave.data as any)?.corporation;
+    if (!corp) return null;
+    return {
+      data: corp.data as Record<string, any>,
+      updateCorporation: this.updateCorporation,
+      updateCorporationUpgrade: this.updateCorporationUpgrade,
+      toggleCorporationUnlock: this.toggleCorporationUnlock,
+      updateCorporationDivision: this.updateCorporationDivision,
+    };
+  }
+
+  updateCorporation = (updates: Record<string, unknown>) => {
+    const corp = (this.save.data.PlayerSave.data as any).corporation;
+    Object.assign(corp.data, updates);
+  };
+
+  updateCorporationUpgrade = (upgradeName: string, level: number) => {
+    const corp = (this.save.data.PlayerSave.data as any).corporation;
+    corp.data.upgrades[upgradeName].level = level;
+  };
+
+  toggleCorporationUnlock = (unlockName: string) => {
+    const corp = (this.save.data.PlayerSave.data as any).corporation;
+    const unlocks: string[] = corp.data.unlocks.data;
+    const idx = unlocks.indexOf(unlockName);
+    if (idx >= 0) unlocks.splice(idx, 1);
+    else unlocks.push(unlockName);
+  };
+
+  updateCorporationDivision = (divisionName: string, updates: Record<string, unknown>) => {
+    const corp = (this.save.data.PlayerSave.data as any).corporation;
+    const pairs: [string, any][] = corp.data.divisions.data;
+    const div = pairs.find(([n]) => n === divisionName);
+    if (div) Object.assign(div[1].data, updates);
+  };
+
   get factions() {
     const joinedSet = new Set(this.save.data.PlayerSave.data.factions ?? []);
     const invitedSet = new Set(this.save.data.PlayerSave.data.factionInvitations ?? []);
