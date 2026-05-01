@@ -11,6 +11,7 @@ import clsx from "clsx";
 import { observer } from "mobx-react-lite";
 import { FileContext } from "App";
 import { calculateExp } from "util/game";
+import { getBitNodeSkillMult, getSf12Level } from "util/bitnode-mults";
 import { Bitburner } from "bitburner.types";
 
 interface Props extends PropsWithChildren<{}> {
@@ -30,6 +31,11 @@ export default observer(function StatSection({ property, onSubmit }: Props) {
     ? (data.mults?.[property] ?? 1)
     : (data[`${property}_mult`] ?? 1);
 
+  // BitNode multipliers reduce effective skill level — must be included in exp calculation
+  const bitNodeN: number = data.bitNodeN ?? 1;
+  const sf12Level = getSf12Level(data.sourceFiles);
+  const bnMult = property === "intelligence" ? 1 : getBitNodeSkillMult(property, bitNodeN, sf12Level);
+
   const [value, setValue] = useState(`${currentLevel}`);
 
   const [editing, setEditing] = useState(false);
@@ -41,7 +47,7 @@ export default observer(function StatSection({ property, onSubmit }: Props) {
   const onClose = useCallback<MouseEventHandler<HTMLDivElement> & FormEventHandler>(
     (event) => {
       const desiredLevel = Math.min(Number.MAX_SAFE_INTEGER, Number(value));
-      const mult = property === "intelligence" ? 1 : skillMult;
+      const mult = property === "intelligence" ? 1 : skillMult * bnMult;
       const expValue = calculateExp(desiredLevel, mult);
 
       if (isV2) {
@@ -87,7 +93,7 @@ export default observer(function StatSection({ property, onSubmit }: Props) {
                 />
               </div>
               <small className="mt-1 text-xs italic text-slate-500 px-2">
-                Level calculation does not factor augmentations, so actual in-game levels may vary
+                Level calculation factors the BitNode multiplier (BN{bitNodeN}: {Math.round(bnMult * 100)}%), but not augmentations, so actual in-game levels may still vary
               </small>
             </>
           )}
