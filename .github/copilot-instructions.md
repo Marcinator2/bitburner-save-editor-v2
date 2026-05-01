@@ -37,7 +37,7 @@ src/
 
 ## Sprache / Language
 
-- Alle Texte im Code auf **Englisch**: Variablennamen, Kommentare, Commit-Messages, UI-Labels
+- Everything in **English**: variable names, comments, commit messages, UI labels, and Markdown files (`.md`)
 
 ## Code-Stil
 
