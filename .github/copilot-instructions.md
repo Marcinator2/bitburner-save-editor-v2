@@ -35,6 +35,10 @@ src/
 - Typen aus `bitburner-src-stable/` sind Referenz, nicht direkt importieren
 - Bei fehlenden Typen: `as any` mit TODO-Kommentar, kein Typ-Casting ohne Grund
 
+## Sprache / Language
+
+- Alle Texte im Code auf **Englisch**: Variablennamen, Kommentare, Commit-Messages, UI-Labels
+
 ## Code-Stil
 
 - Funktionale Komponenten mit TypeScript, keine Klassen-Komponenten
