@@ -1,82 +1,82 @@
 # Bitburner Save Editor v2 — Project Guidelines
 
-## Projekt-Übersicht
+## Overview
 
-Web-App zum Bearbeiten von Bitburner-Spielständen (`.json`, `.json.gz`, `.gz`).
-Zielversion: **Bitburner 2.8.1**. Live unter [marcinator2.github.io/bitburner-save-editor-v2](https://marcinator2.github.io/bitburner-save-editor-v2/).
+Web app for editing Bitburner save files (`.json`, `.json.gz`, `.gz`).
+Target version: **Bitburner 2.8.1**. Live at [marcinator2.github.io/bitburner-save-editor-v2](https://marcinator2.github.io/bitburner-save-editor-v2/).
 
 ## Tech Stack
 
 - **Vite** + **React 19** + **TypeScript 5**
-- **MobX** (`makeAutoObservable`) für State Management — kein Redux, kein Context-API
-- **Tailwind CSS** für Styling — keine separaten CSS-Dateien außer `index.css`
-- **Ramda** für funktionale Hilfsfunktionen
+- **MobX** (`makeAutoObservable`) for state management — no Redux, no Context API
+- **Tailwind CSS** for styling — no separate CSS files except `index.css`
+- **Ramda** for functional helpers
 
-## Architektur
+## Architecture
 
 ```
 src/
-  store/file.store.ts        # Zentraler MobX-Store (FileStore) – einzige Quelle der Wahrheit
+  store/file.store.ts        # Central MobX store (FileStore) — single source of truth
   components/
     editor/
-      section/               # Je ein Tab = eine *-section.tsx Datei
-      inputs/                # Wiederverwendbare Input-Komponenten
-    file-loader.tsx          # Datei-Upload / Drag & Drop
-  bitburner.types.ts         # Bitburner-Typen (SaveData, PlayerSaveObject, …)
-  util/                      # Hilfsfunktionen (Kompression, Konvertierung etc.)
+      section/               # One file per tab: *-section.tsx
+      inputs/                # Reusable input components
+    file-loader.tsx          # File upload / drag & drop
+  bitburner.types.ts         # Bitburner types (SaveData, PlayerSaveObject, …)
+  util/                      # Helper functions (compression, conversion, etc.)
 ```
 
-- Neue Editor-Tabs → neue `*-section.tsx` in `src/components/editor/section/` + Eintrag in `section/index.tsx`
-- Zugriff auf Save-Daten ausschließlich über `FileStore`-Methoden, nie direkt mutieren außer über `Object.assign` wie in `updatePlayer`
+- New editor tabs → new `*-section.tsx` in `src/components/editor/section/` + entry in `section/index.tsx`
+- Save data must only be accessed via `FileStore` methods, never mutated directly except via `Object.assign` as in `updatePlayer`
 
-## Typen
+## Types
 
-- Bitburner-Typen leben in `src/bitburner.types.ts` (Namespace `Bitburner`)
-- Typen aus `bitburner-src-stable/` sind Referenz, nicht direkt importieren
-- Bei fehlenden Typen: `as any` mit TODO-Kommentar, kein Typ-Casting ohne Grund
+- Bitburner types live in `src/bitburner.types.ts` (namespace `Bitburner`)
+- Files in `bitburner-src-stable/` are reference only — do not import from them
+- For missing types: use `as any` with a TODO comment, no type casting without reason
 
-## Sprache / Language
+## Language
 
 - Everything in **English**: variable names, comments, commit messages, UI labels, and Markdown files (`.md`)
 
-## Code-Stil
+## Code Style
 
-- Funktionale Komponenten mit TypeScript, keine Klassen-Komponenten
-- Props-Interfaces direkt über der Komponente definieren (kein separates `types.ts` pro Komponente)
-- Tailwind-Klassen inline, kein `cn()`/`clsx()` außer bei bedingten Klassen
-- Neon-Grün-Farbschema: primär `text-green-400`, `border-green-800`, `bg-black`
+- Functional components with TypeScript, no class components
+- Props interfaces defined directly above the component (no separate `types.ts` per component)
+- Tailwind classes inline, no `cn()`/`clsx()` except for conditional classes
+- Neon green color scheme: primarily `text-green-400`, `border-green-800`, `bg-black`
 
 ## Build & Dev
 
 ```bash
 npm install
-npm run dev      # Entwicklungsserver
+npm run dev      # development server
 npm run build    # tsc --noEmit + vite build
-./start.sh       # Kurzform für dev
+./start.sh       # shorthand for dev
 ```
 
-## Konventionen
+## Conventions
 
-- Dateiformat-Erkennung und Roundtrip (gzip ↔ JSON ↔ base64) läuft im `FileStore`
-- Der `EditSaveFile`-Exploit wird automatisch beim Laden gesetzt
-- RAM-Werte bei Servern sind immer Zweierpotenzen (1–1048576 GB)
+- File format detection and roundtrip (gzip ↔ JSON ↔ base64) is handled in `FileStore`
+- The `EditSaveFile` exploit is automatically applied when loading a save
+- RAM values for servers are always powers of two (1–1048576 GB)
 
-## Skill-Level-Berechnung
+## Skill Level Calculation
 
-Bitburner berechnet beim Laden ein Skill-Level immer neu aus `exp`:
+Bitburner always recalculates skill levels from `exp` on load:
 
 ```
 skill = calculateSkill(exp, mults.<stat> × currentNodeMults.<StatLevelMultiplier>)
 ```
 
-Der Editor muss daher beim Setzen eines Levels das **Gegenstück** rechnen:
+The editor must therefore calculate the inverse when setting a level:
 
 ```
 exp = calculateExp(desiredLevel, mults.<stat> × bnMult)
 ```
 
-- `mults.<stat>` = Augmentation-Multiplikator aus `data.mults` (v2) bzw. `data.<stat>_mult` (v1)
-- `bnMult` = BitNode-Multiplikator aus `src/util/bitnode-mults.ts` (Quelle: `BitNode.tsx::getBitNodeMultipliers`)
-- BN12 ist dynamisch: `bnMult = 1 / 1.02^(sf12Level + 1)` — `sf12Level` aus `data.sourceFiles`
-- Intelligence hat immer `bnMult = 1` (kein BitNode-Skill-Multiplikator)
-- Wird **nicht** berücksichtigt: Augmentations (die verändern `mults` zur Laufzeit, stehen aber schon im Save)
+- `mults.<stat>` = augmentation multiplier from `data.mults` (v2) or `data.<stat>_mult` (v1)
+- `bnMult` = BitNode multiplier from `src/util/bitnode-mults.ts` (source: `BitNode.tsx::getBitNodeMultipliers`)
+- BN12 is dynamic: `bnMult = 1 / 1.02^(sf12Level + 1)` — `sf12Level` from `data.sourceFiles`
+- Intelligence always has `bnMult = 1` (no BitNode skill multiplier)
+- **Not** accounted for: augmentations (they modify `mults` at runtime, but are already reflected in the save)
