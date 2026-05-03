@@ -2,7 +2,7 @@ import { useCallback, useContext, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import clsx from "clsx";
 import { FileContext } from "App";
-import { formatNumber } from "util/format";
+import { formatNumber, parseInputNumber } from "util/format";
 
 const RAM_OPTIONS: number[] = [0, ...Array.from({ length: 21 }, (_, i) => 2 ** i)];
 // 0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, …, 1048576
@@ -34,7 +34,7 @@ export default observer(function ServersSection() {
 
   const onChangeCores = useCallback(
     (hostname: string, value: string) => {
-      const cores = Math.max(1, Math.min(8, Number(value)));
+      const cores = Math.max(1, Math.min(8, parseInputNumber(value)));
       if (!isNaN(cores)) servers.updateServer(hostname, { cpuCores: cores });
     },
     [servers]

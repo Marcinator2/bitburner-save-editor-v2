@@ -12,6 +12,7 @@ import { observer } from "mobx-react-lite";
 import { FileContext } from "App";
 import { calculateExp } from "util/game";
 import { getBitNodeSkillMult, getSf12Level } from "util/bitnode-mults";
+import { parseInputNumber } from "util/format";
 import { Bitburner } from "bitburner.types";
 
 interface Props extends PropsWithChildren<{}> {
@@ -46,7 +47,7 @@ export default observer(function StatSection({ property, onSubmit }: Props) {
 
   const onClose = useCallback<MouseEventHandler<HTMLDivElement> & FormEventHandler>(
     (event) => {
-      const desiredLevel = Math.min(Number.MAX_SAFE_INTEGER, Number(value));
+      const desiredLevel = Math.min(Number.MAX_SAFE_INTEGER, parseInputNumber(value));
       const mult = property === "intelligence" ? 1 : skillMult * bnMult;
       const expValue = calculateExp(desiredLevel, mult);
 

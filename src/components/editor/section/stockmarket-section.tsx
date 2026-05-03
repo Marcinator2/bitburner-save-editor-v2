@@ -1,7 +1,7 @@
 import { useCallback, useContext, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { FileContext } from "App";
-import { formatMoney, formatNumber } from "util/format";
+import { formatMoney, formatNumber, parseInputNumber } from "util/format";
 
 export default observer(function StockMarketSection() {
   const { stocks } = useContext(FileContext);
@@ -19,7 +19,7 @@ export default observer(function StockMarketSection() {
 
   const onChange = useCallback(
     (symbol: string, field: string, value: string) => {
-      const num = Number(value);
+      const num = parseInputNumber(value);
       if (!isNaN(num) && num >= 0) stocks.updateStock(symbol, { [field]: num } as any);
     },
     [stocks]

@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import clsx from "clsx";
+import { parseInputNumber } from "util/format";
 
 interface Props extends PropsWithChildren<{}> {
   formatter?: (...args: any) => string;
@@ -30,7 +31,7 @@ export default function EditableSection({ formatter, label, property, onSubmit, 
       let parsedValue: string | number = value;
 
       if (type === "number") {
-        parsedValue = Math.min(Number.MAX_VALUE, Number(value));
+        parsedValue = Math.min(Number.MAX_VALUE, parseInputNumber(value));
       }
 
       onSubmit(property, parsedValue);

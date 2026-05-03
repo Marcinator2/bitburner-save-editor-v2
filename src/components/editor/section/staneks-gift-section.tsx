@@ -1,4 +1,5 @@
 import { useCallback, useContext } from "react";
+import { parseInputNumber } from "util/format";
 import { observer } from "mobx-react-lite";
 import { FileContext } from "App";
 
@@ -11,7 +12,7 @@ export default observer(function StaneksGiftSection() {
 
   const setStoredCycles = useCallback(
     (val: string) => {
-      const n = Number(val);
+      const n = parseInputNumber(val);
       if (!isNaN(n) && n >= 0) raw.data.storedCycles = n;
     },
     [raw]

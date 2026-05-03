@@ -1,4 +1,5 @@
 import { useCallback, useContext } from "react";
+import { parseInputNumber } from "util/format";
 import { observer } from "mobx-react-lite";
 import { FileContext } from "App";
 
@@ -9,7 +10,7 @@ export default observer(function SettingsSection() {
     (key: string, rawValue: string, originalType: string) => {
       let value: unknown = rawValue;
       if (originalType === "boolean") value = rawValue === "true";
-      else if (originalType === "number") value = Number(rawValue);
+      else if (originalType === "number") value = parseInputNumber(rawValue);
       settings.updateSetting(key, value);
     },
     [settings]

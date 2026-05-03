@@ -1,7 +1,7 @@
 import { useCallback, useContext, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { FileContext } from "App";
-import { formatNumber } from "util/format";
+import { formatNumber, parseInputNumber } from "util/format";
 
 export default observer(function CompaniesSection() {
   const { companies } = useContext(FileContext);
@@ -14,7 +14,7 @@ export default observer(function CompaniesSection() {
 
     const onChange = useCallback(
     (name: string, field: "favor" | "playerReputation", value: string) => {
-      const num = Number(value);
+      const num = parseInputNumber(value);
       if (!isNaN(num) && num >= 0) companies.updateCompany(name, { [field]: num });
     },
     [companies]

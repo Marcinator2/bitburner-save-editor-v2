@@ -1,4 +1,5 @@
 import { useCallback, useContext, useMemo, useState } from "react";
+import { parseInputNumber } from "util/format";
 import { observer } from "mobx-react-lite";
 import { FileContext } from "App";
 
@@ -264,7 +265,7 @@ export default observer(function AugmentationsSection() {
             min={0}
             value={nfgLevel}
             onChange={(e) => {
-              const v = Math.max(0, Number(e.currentTarget.value));
+              const v = Math.max(0, parseInputNumber(e.currentTarget.value));
               if (!isNaN(v)) setNfgLevel(v);
             }}
           />

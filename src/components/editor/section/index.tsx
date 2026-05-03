@@ -63,6 +63,7 @@ export default class EditorSection extends Component<Props> {
 }
 
 import { useContext } from "react";
+import { parseInputNumber } from "util/format";
 import { observer } from "mobx-react-lite";
 import { FileContext } from "App";
 
@@ -77,7 +78,7 @@ const LastExportBonusView = observer(function LastExportBonusView() {
   const raw = (ctx.save?.data as any)?.[Bitburner.SaveDataKey.LastExportBonus];
 
   const setTs = (val: string) => {
-    const n = Number(val);
+    const n = parseInputNumber(val);
     if (!isNaN(n)) (ctx.save?.data as any)[Bitburner.SaveDataKey.LastExportBonus] = n;
   };
 
